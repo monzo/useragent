@@ -41,7 +41,7 @@ const (
 )
 
 func parseBrowser(l *lex) *UserAgent {
-	for _, f := range []parseFn{parseGecko, parseChromeSafari, parseIE1, parseIE2} {
+	for _, f := range []parseFn{parseGecko, parseChromeSafari, parseIE1, parseIE2, parseDalvik} {
 		if ua := f(newLex(l.s)); ua != nil {
 			return ua
 		}
@@ -290,4 +290,44 @@ func parseIE2(l *lex) *UserAgent {
 	}
 
 	return ua
+}
+
+func parseDalvik(l *lex) (ua *UserAgent) {
+	ua = new()
+
+	ua.Type = Library
+	ua.Mobile = true
+
+	if !l.match("Dalvik/") {
+		return nil
+	}
+	if !parseVersion(l, ua, " ") {
+		return nil
+	}
+
+	ua.OS = OSAndroid
+
+	if !l.match("(Linux; ") {
+		return nil
+	}
+
+	ua.Security = parseSecurity(l)
+
+	if !l.match("Android") {
+		return nil
+	}
+
+	_ = parseOSVersion(l, ua)
+
+	if !l.match("; ") {
+		return nil
+	}
+
+	if n, ok := l.span(" Build/"); ok {
+		ua.Name = n
+	} else {
+		return nil
+	}
+
+	return
 }

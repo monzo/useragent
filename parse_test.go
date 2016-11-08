@@ -441,3 +441,32 @@ func TestPhantomJS(t *testing.T) {
 		t.Errorf("expected %+v, got %+v\n", want, got)
 	}
 }
+
+func TestAndroidAPI(t *testing.T) {
+	var got *UserAgent
+	want := &UserAgent{}
+	want.Mobile = true
+	want.Tablet = false
+
+	got = Parse(`Dalvik/2.1.0 (Linux; U; Android 5.1.1; E6603 Build/32.0.A.6.152)`)
+	want.Type = Library
+	want.OS = OSAndroid
+	want.OSVersion = mustParse("5.1.1")
+	want.Name = "E6603"
+	want.Version = mustParse("2.1.0")
+	want.Security = SecurityStrong
+	if !eqUA(want, got) {
+		t.Errorf("expected %+v, got %+v\n", want, got)
+	}
+
+	got = Parse(`Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 6P Build/MHC19I)`)
+	want.Type = Library
+	want.OS = OSAndroid
+	want.OSVersion = mustParse("6.0.1")
+	want.Name = "Nexus 6P"
+	want.Version = mustParse("2.1.0")
+	want.Security = SecurityStrong
+	if !eqUA(want, got) {
+		t.Errorf("expected %+v, got %+v\n", want, got)
+	}
+}
